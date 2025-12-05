@@ -69,7 +69,7 @@ with tab_data_dict:
     st.markdown("### Variables")
 
     # Example data dictionary – replace with your own
-    st.markdown(
+    st.markdown()
         """
         | Variable Name      | Type        | Description                                   |
         |--------------------|------------|-----------------------------------------------|
