@@ -90,6 +90,7 @@ Example layout:
 ├── assets/               # (Optional) Images, logos, etc.
 ├── requirements.txt      # Python dependencies
 └── README.md             # This file
+└── README.md             # This file
 ```
 
 ---
