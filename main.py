@@ -12,7 +12,7 @@ col1, col2, col3 = st.columns([1, 3, 1])
 
 with col1:
     # Replace with your actual path or URL
-    st.image("left_logo.png", use_container_width=True)
+    st.image("data file/Uber-logo.png", use_container_width=True)
 
 with col2:
     st.markdown(
@@ -26,7 +26,7 @@ with col2:
 
 with col3:
     # Replace with your actual path or URL
-    st.image("right_logo.png", use_container_width=True)
+    st.image("rice-logo.jpg", use_container_width=True)
 
 st.markdown("---")  # horizontal divider
 
