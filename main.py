@@ -82,7 +82,20 @@ with tab_metadata:
         st.error(f"Could not load metadata: {e}")
 
 # -------- TAB 2: DATA DICTIONARY --------
+
+    # -------- TAB 2: DATA DICTIONARY --------
 with tab_data_dict:
+    st.subheader("Data Dictionary")
+
+    try:
+        df_dictionary = show_dictionary(data)
+
+        st.markdown("### Parsed Data Dictionary (from Google Sheet)")
+        st.dataframe(df_dictionary, use_container_width=True)
+
+    except Exception as e:
+        st.error(f"Could not load data dictionary: {e}")
+
     st.subheader("Data Dictionary")
     st.markdown("### Variables")
 
