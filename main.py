@@ -70,7 +70,7 @@ with tab_data_dict:
 
     # Example data dictionary – replace with your own
     st.markdown()
-        """
+    """
         | Variable Name      | Type        | Description                                   |
         |--------------------|------------|-----------------------------------------------|
         | `trip_id`          | String     | Unique identifier for each trip              |
