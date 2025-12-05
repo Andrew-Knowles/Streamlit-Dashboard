@@ -1,4 +1,7 @@
 import streamlit as st
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 
 # Page config
 st.set_page_config(
@@ -6,12 +9,34 @@ st.set_page_config(
     layout="wide"
 )
 
+# ========= LOAD DATA FROM GOOGLE SHEETS =========
+data_url = "https://docs.google.com/spreadsheets/d/1fTpJACr1Ay6DEIgFxjFZF8LgEPiwwAFY/edit?usp=sharing&ouid=103457517634340619188&rtpof=true&sd=true"
+
+@st.cache_data
+def load_file(url: str) -> dict:
+    # More robust: cut everything after /edit?
+    base = url.split("/edit?")[0]
+    modified_url = base + "/export?format=xlsx"
+
+    # Load ALL sheets from the Excel file
+    all_sheets = pd.read_excel(modified_url, sheet_name=None)
+
+    data = {}
+    for sheet_name, df in all_sheets.items():
+        data[sheet_name] = df
+    return data
+
+data = load_file(data_url)
+
+# Optional: pick which sheet to look at
+sheet_names = list(data.keys())
+default_sheet = "Switchbacks" if "Switchbacks" in sheet_names else sheet_names[0]
+current_sheet = default_sheet  # or use a selectbox somewhere if you want
+
 # ===== HEADER =====
-# Create three columns: left logo, title, right logo
 col1, col2, col3 = st.columns([1, 3, 1])
 
 with col1:
-    # Replace with your actual path or URL
     st.image("data file/Uber-logo.png", use_container_width=True)
 
 with col2:
@@ -25,10 +50,9 @@ with col2:
     )
 
 with col3:
-    # Replace with your actual path or URL
     st.image("data file/rice-logo.jpg", use_container_width=True)
 
-st.markdown("---")  # horizontal divider
+st.markdown("---")
 
 # ===== TABS =====
 tab_metadata, tab_data_dict, tab_visualizations = st.tabs(
@@ -39,22 +63,24 @@ tab_metadata, tab_data_dict, tab_visualizations = st.tabs(
 with tab_metadata:
     st.subheader("Dataset Metadata")
 
-    # Example structure – replace with your real content
     st.markdown("### Overview")
     st.write(
         """
-        - **Case Study:** HBR – Uber
-        - **Purpose:** Analyze key metrics, customer behavior, and operational patterns.
-        - **Data Source:** *[Describe source here]*  
-        - **Data Period:** *[e.g., Jan 2019 – Dec 2020]*  
-        - **Number of Records:** *[e.g., 100,000]*  
-        """
+        - **Case Study:** HBR – Uber  
+        - **Purpose:** Analyze key metrics, customer behavior, and operational patterns.  
+        - **Data Source:** Google Sheets (multi-sheet Excel export)  
+        - **Sheets Loaded:** {}
+        """.format(", ".join(sheet_names))
     )
+
+    # Quick peek at Switchbacks (or first sheet) here if you like
+    st.markdown(f"### Preview: `{current_sheet}` sheet")
+    st.dataframe(data[current_sheet].head())
 
     st.markdown("### Collection & Cleaning Notes")
     st.write(
         """
-        - Data collected from *[system / export / API]*  
+        - Data collected from Google Sheets export  
         - Missing values handled via *[method]*  
         - Outliers treated based on *[rules]*  
         - Timezone normalization: *[details]*  
@@ -64,23 +90,50 @@ with tab_metadata:
 # -------- TAB 2: DATA DICTIONARY --------
 with tab_data_dict:
     st.subheader("Data Dictionary")
-
-    # You can organize this however you like – here’s a simple layout
     st.markdown("### Variables")
 
-    # Example data dictionary – replace with your own
-    st.markdown()
-    """
-        | Variable Name      | Type        | Description                                   |
-        |--------------------|------------|-----------------------------------------------|
-        | `trip_id`          | String     | Unique identifier for each trip              |
-        | `driver_id`        | String     | Unique identifier for each driver            |
-        | `rider_id`         | String     | Unique identifier for each rider             |
-        | `start_time`       | Datetime   | Trip start timestamp                         |
-        | `end_time`         | Datetime   | Trip end timestamp                           |
-        | `pickup_location`  | String     | Pickup neighborhood / zone                   |
-        | `dropoff_location` | String     | Dropoff neighborhood / zone                  |
-        | `fare_amount`      | Numeric    | Fare paid by the rider                       |
-        | `surge_multiplier` | Numeric    | Surge factor applied to base fare            |
-        | `trip_distance`    | Numeric_ n  
+    # Fix: st.markdown must wrap the triple-quoted string
+    st.markdown(
         """
+        | Variable Name      | Type         | Description                                   |
+        |--------------------|-------------|-----------------------------------------------|
+        | `trip_id`          | String      | Unique identifier for each trip               |
+        | `driver_id`        | String      | Unique identifier for each driver             |
+        | `rider_id`         | String      | Unique identifier for each rider              |
+        | `start_time`       | Datetime    | Trip start timestamp                          |
+        | `end_time`         | Datetime    | Trip end timestamp                            |
+        | `pickup_location`  | String      | Pickup neighborhood / zone                    |
+        | `dropoff_location` | String      | Dropoff neighborhood / zone                   |
+        | `fare_amount`      | Numeric     | Fare paid by the rider                        |
+        | `surge_multiplier` | Numeric     | Surge factor applied to base fare             |
+        | `trip_distance`    | Numeric     | Distance of the trip (e.g., in km or miles)   |
+        | `trip_status`      | Categorical | Completed / Cancelled / No-show               |
+        """
+    )
+
+    st.info("Update this table to match the actual columns in your Google Sheets data.")
+
+# -------- TAB 3: VISUALIZATIONS --------
+with tab_visualizations:
+    st.subheader("Visualizations")
+
+    st.markdown(
+        """
+        This tab uses the data loaded from the Google Sheets document.  
+        Below is a simple preview of the `Switchbacks` (or default) sheet and a placeholder for charts.
+        """
+    )
+
+    st.markdown(f"### Data preview: `{current_sheet}`")
+    st.dataframe(data[current_sheet].head())
+
+    # Example: if there is a numeric column to plot, you can quickly visualize it.
+    # Replace 'SomeNumericColumn' with a real column name from the sheet.
+    if not data[current_sheet].empty:
+        numeric_cols = data[current_sheet].select_dtypes(include="number").columns.tolist()
+        if numeric_cols:
+            col_to_plot = st.selectbox("Select numeric column to plot", numeric_cols)
+            st.line_chart(data[current_sheet][col_to_plot])
+        else:
+            st.warning("No numeric columns found in this sheet to plot.")
+
