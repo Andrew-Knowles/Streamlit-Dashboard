@@ -60,32 +60,26 @@ tab_metadata, tab_data_dict, tab_visualizations = st.tabs(
 )
 
 # -------- TAB 1: METADATA --------
+# -------- TAB 1: METADATA --------
 with tab_metadata:
     st.subheader("Dataset Metadata")
 
-    st.markdown("### Overview")
-    st.write(
-        """
-        - **Case Study:** HBR – Uber  
-        - **Purpose:** Analyze key metrics, customer behavior, and operational patterns.  
-        - **Data Source:** Google Sheets (multi-sheet Excel export)  
-        - **Sheets Loaded:** {}
-        """.format(", ".join(sheet_names))
-    )
+    # Pull metadata text from the Copyright sheet
+    try:
+        metadata_text = show_metadata(data)
 
-    # Quick peek at Switchbacks (or first sheet) here if you like
-    st.markdown(f"### Preview: `{current_sheet}` sheet")
-    st.dataframe(data[current_sheet].head())
+        st.markdown("### Source Metadata (from Google Sheets)")
+        st.markdown(
+            f"""
+            <div style="padding:12px; background-color:#f0f2f6; border-radius:8px;">
+                <pre style="white-space: pre-wrap;">{metadata_text}</pre>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-    st.markdown("### Collection & Cleaning Notes")
-    st.write(
-        """
-        - Data collected from Google Sheets export  
-        - Missing values handled via *[method]*  
-        - Outliers treated based on *[rules]*  
-        - Timezone normalization: *[details]*  
-        """
-    )
+    except Exception as e:
+        st.error(f"Could not load metadata: {e}")
 
 # -------- TAB 2: DATA DICTIONARY --------
 with tab_data_dict:
