@@ -26,7 +26,7 @@ with col2:
 
 with col3:
     # Replace with your actual path or URL
-    st.image("rice-logo.jpg", use_container_width=True)
+    st.image("data file/rice-logo.jpg", use_container_width=True)
 
 st.markdown("---")  # horizontal divider
 
