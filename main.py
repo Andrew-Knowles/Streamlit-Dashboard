@@ -82,4 +82,5 @@ with tab_data_dict:
         | `dropoff_location` | String     | Dropoff neighborhood / zone                  |
         | `fare_amount`      | Numeric    | Fare paid by the rider                       |
         | `surge_multiplier` | Numeric    | Surge factor applied to base fare            |
-        | `trip_distance`    | Numeric_
+        | `trip_distance`    | Numeric_ n  
+        """
